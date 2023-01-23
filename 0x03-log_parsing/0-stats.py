@@ -1,40 +1,45 @@
 #!/usr/bin/python3
-""" doc """
-import sys
+"""
+Reads stdin line by line and computes metrics
+"""
 
+from sys import stdin
 
 if __name__ == "__main__":
-    i = 0
-    status = {
-        '200': 0,
-        '301': 0,
-        '400': 0,
-        '401': 0,
-        '403': 0,
-        '404': 0,
-        '405': 0,
-        '500': 0
-    }
-    fileSize = 0
-
-    def printstats(fileSize, status):
-        """ doc """
-        print("File size: {:d}".format(fileSize))
-        for key in sorted(status.keys()):
-            if status[key] != 0:
-                print("{}: {:d}".format(key, status[key]))
-
+    total_size = 0
+    status_codes = {}
+    list_status_codes = [
+        "200", "301", "400", "401", "403", "404", "405", "500"]
+    for status in list_status_codes:
+        status_codes[status] = 0
+    count = 0
     try:
-        for line in sys.stdin:
-            words = line.split()
-            if len(words) >= 2:
-                if words[-2] in status.keys():
-                    status[words[-2]] += 1
-                fileSize += int(words[-1])
-                i += 1
-                if not i % 10:
-                    printstats(fileSize, status)
-        printstats(fileSize, status)
-    except KeyboardInterrupt:
-        printstats(fileSize, status)
+        for line in stdin:
+            try:
+                args = line.split(" ")
+                if len(args) != 9:
+                    pass
+                if args[-2] in list_status_codes:
+                    status_codes[args[-2]] += 1
+                if args[-1][-1] == '\n':
+                    args[-1][:-1]
+                total_size += int(args[-1])
+            except:
+                pass
+            count += 1
+            if count % 10 == 0:
+                print("File size: {}".format(total_size))
+                for status in sorted(status_codes.keys()):
+                    if status_codes[status] != 0:
+                        print("{}: {}".format(
+                            status, status_codes[status]))
+        print("File size: {}".format(total_size))
+        for status in sorted(status_codes.keys()):
+            if status_codes[status] != 0:
+                print("{}: {}".format(status, status_codes[status]))
+    except KeyboardInterrupt as err:
+        print("File size: {}".format(total_size))
+        for status in sorted(status_codes.keys()):
+            if status_codes[status] != 0:
+                print("{}: {}".format(status, status_codes[status]))
         raise
