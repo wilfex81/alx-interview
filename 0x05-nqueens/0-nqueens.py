@@ -1,73 +1,74 @@
 #!/usr/bin/python3
-""" N QUEENS ALGORITHM WITH BACKTRACKING (RECURSION INSIDE LOOP) """
+""" Solving n queens """
+
+
 import sys
 
 
-class NQueen:
-    """ Class for solving N Queen Problem """
+# error handling for argv[1]
 
-    def __init__(self, n):
-        """ Global Variables """
-        self.n = n
-        self.x = [0 for i in range(n + 1)]
-        self.res = []
+if __name__ == "__main__":
+    if len(sys.argv) == 1 or len(sys.argv) > 2:
+        print("Usage: nqueens N")
+        sys.exit(1)
+    N = sys.argv[1]
+    try:
+        N_int = int(N)
+    except ValueError:
+        print("N must be a number")
+        sys.exit(1)
+    if N_int < 4:
+        print("N must be at least 4")
+        sys.exit(1)
 
-    def place(self, k, i):
-        """ Checks if k Queen can be placed in i column (True)
-        or if the are attacking queens in row or diagonal (False)
+# n queens methods
+
+    coords = []
+
+    def isSafe(coords, row, col):
+        """ Checks if queen can be placed in coord of board.
+        Returns True if can, else False
         """
+        rows = []
+        cols = []
+        diag_r = []
+        diag_l = []
 
-        # j checks from 1 to k - 1 (Up to previous queen)
-        for j in range(1, k):
-            # There is already a queen in column
-            # or a queen in same diagonal
-            if self.x[j] == i or \
-               abs(self.x[j] - i) == abs(j - k):
-                return 0
-        return 1
+        for square in coords:
+            rows.append(square[0])
+            cols.append(square[1])
+            diag_r.append(square[0] + square[1])
+            diag_l.append(square[1] - square[0])
 
-    def nQueen(self, k):
-        """ Tries to place every queen in the board
-        Args:
-        k: starting queen from which to evaluate (should be 1)
+        if row in rows or col in cols:
+            return False
+        if row + col in diag_r or col - row in diag_l:
+            return False
+
+        return True
+
+    def solveNqueens(coords, col, safe_queens=[]):
+        """ Creates array of queen positions
+        Returns array
         """
-        # i goes from column 1 to column n (1st column is 1st index)
-        for i in range(1, self.n + 1):
-            if self.place(k, i):
-                # Queen can be placed in i column
-                self.x[k] = i
-                if k == self.n:
-                    # Placed all 4 Queens (A solution was found)
-                    solution = []
-                    for i in range(1, self.n + 1):
-                        solution.append([i - 1, self.x[i] - 1])
-                    self.res.append(solution)
+        for x in range(N_int):
+            if isSafe(coords, x, col):
+                coords.append([x, col])
+                if col == N_int - 1:
+                    safe_queens.append(coords.copy())
+                    del coords[-1]
                 else:
-                    # Need to place more Queens
-                    self.nQueen(k + 1)
-        return self.res
+                    solveNqueens(coords, col + 1)
 
+        if len(coords):
+            del coords[-1]
+        return safe_queens
 
-# Main
+# sets base case for recursion
 
-if len(sys.argv) != 2:
-    print("Usage: nqueens N")
-    sys.exit(1)
+    coords = solveNqueens(coords, 0)
 
-N = sys.argv[1]
+# prints coords of squares for safe queens
 
-try:
-    N = int(N)
-except ValueError:
-    print("N must be a number")
-    sys.exit(1)
-
-if N < 4:
-    print("N must be at least 4")
-    sys.exit(1)
-
-queen = NQueen(N)
-res = queen.nQueen(1)
-
-for i in res:
-    print(i)
+    for squares in coords:
+        print(squares)
