@@ -1,3 +1,10 @@
+#!/usr/bin/python3
+"""
+prime game module
+"""
+
+
+
 def is_winner(x, nums):
     """
     Given a set of consecutive integers starting from 1 up to and including n,
